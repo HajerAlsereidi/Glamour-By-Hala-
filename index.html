@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Glamour By Hala - Book a Service</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #fff0f5;
+    }
+    h1 {
+      color: #d63384;
+      text-align: center;
+    }
+    form {
+      max-width: 400px;
+      padding: 20px;
+      border: 2px solid #f8bbd0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(214, 51, 132, 0.1);
+      margin: auto;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 16px;
+      border: 1px solid #f8bbd0;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #d63384;
+      color: white;
+      padding: 12px;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+    button:hover {
+      background-color: #c2185b;
+    }
+    strong {
+      font-size: 18px;
+      color: #d63384;
+    }
+  </style>
+</head>
+<body>
+  <h1>Glamour By Hala - Book Your Service</h1>
+  <form id="bookingForm">
+    <label>Name:</label>
+    <input type="text" id="nameInput" required>
+
+    <label>Phone Number:</label>
+    <input type="tel" id="phoneInput" required>
+
+    <label>Blow Dry (choose hair length):</label>
+    <select id="blowDry">
+      <option value="0">No Blow Dry</option>
+      <option value="10">Short Hair – $10</option>
+      <option value="15">Medium Hair – $15</option>
+      <option value="20">Long Hair – $20</option>
+    </select>
+
+    <label>Add Curl:</label>
+    <select id="addCurl">
+      <option value="no">No</option>
+      <option value="yes">Yes (+$10)</option>
+    </select>
+
+    <label>Lash Extension:</label>
+    <select id="lashExtension">
+      <option value="0">No Lash Extension</option>
+      <option value="15">2 Pieces – $15</option>
+      <option value="20">3 Pieces – $20</option>
+    </select>
+
+    <label>Discount Code:</label>
+    <input type="text" id="discountCode">
+
+    <strong>Total: $<span id="total">0.00</span></strong><br><br>
+
+    <button type="submit">Book Now</button>
+  </form>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const blowDry = document.getElementById('blowDry');
+    const addCurl = document.getElementById('addCurl');
+    const lashExtension = document.getElementById('lashExtension');
+    const discountCode = document.getElementById('discountCode');
+    const totalSpan = document.getElementById('total');
+
+    function calculateTotal() {
+      let total = 0;
+      total += parseFloat(blowDry.value);
+      if (addCurl.value === "yes") total += 10;
+      total += parseFloat(lashExtension.value);
+      if (discountCode.value.trim().toUpperCase() === "H10") {
+        total *= 0.9;
+      }
+      totalSpan.textContent = total.toFixed(2);
+    }
+
+    blowDry.addEventListener('change', calculateTotal);
+    addCurl.addEventListener('change', calculateTotal);
+    lashExtension.addEventListener('change', calculateTotal);
+    discountCode.addEventListener('input', calculateTotal);
+    calculateTotal();
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const data = {
+        name: document.getElementById('nameInput').value,
+        phone: document.getElementById('phoneInput').value,
+        blowdry: blowDry.options[blowDry.selectedIndex].text,
+        curl: addCurl.value === "yes" ? "Yes" : "No",
+        lash: lashExtension.options[lashExtension.selectedIndex].text,
+        code: discountCode.value,
+        total: totalSpan.textContent
+      };
+
+      fetch("https://sheetdb.io/api/v1/2glhitrpnkzai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: data })
+      })
+      .then(response => {
+        if (response.ok) {
+          confirm("Thank you for booking with Glamour By Hala!
+
+If you need to cancel, please text me at least 24 hours before your appointment.");
+          form.reset();
+          calculateTotal();
+        } else {
+          alert("Something went wrong. Please try again.");
+        }
+      });
+    });
+  </script>
+</body>
+</html>
